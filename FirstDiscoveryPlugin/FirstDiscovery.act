@@ -1,0 +1,64 @@
+﻿ACTIONFILE V4
+
+ENABLED False
+
+INSTALL LongDescription="Voices out if the targeted system is known or not when in Galaxy Map. Relies on local systems data loaded from EDSM."
+INSTALL ShortDescription="First Discovery"
+INSTALL Version=1.0.0.0
+INSTALL MinEDVersion=8.1.0.0
+INSTALL Location=Actions
+
+EVENT FSDTarget, onFSDTarget, "", Condition AlwaysTrue
+EVENT UIFSDTarget, onFSDTarget, "", Condition AlwaysTrue
+EVENT UIMusic, onSwitchUIState, "", Condition AlwaysTrue
+EVENT onStartup, onStartup, "", Condition AlwaysTrue
+EVENT onShutdown, onShutdown, "", Condition AlwaysTrue
+
+//*************************************************************
+// onFSDTarget
+// Events: FSDTarget, UIFSDTarget
+//*************************************************************
+PROGRAM onFSDTarget
+
+If OnGalaxyMap IsPresent And OnGalaxyMap == 1
+    Scan EDSM "%(EventClass_FSDTarget_StarSystem)"
+
+    If S_Stars > 0
+        Say "Known", Wait=1
+    Else 
+        Say "First discovery", Wait=1
+
+END PROGRAM
+
+//*************************************************************
+// onSwitchUIState
+// Events: UIMusic
+//*************************************************************
+PROGRAM onSwitchUIState
+
+If EventClass_MusicTrackID Contains GalaxyMap
+    PersistentGlobal OnGalaxyMap = 1
+Else 
+    PersistentGlobal OnGalaxyMap = 0
+
+END PROGRAM
+
+//*************************************************************
+// onStartup
+// Events: onStartup
+//*************************************************************
+PROGRAM onStartup
+
+PersistentGlobal OnGalaxyMap = 0
+
+END PROGRAM
+
+//*************************************************************
+// onShutdown
+// Events: onShutdown
+//*************************************************************
+PROGRAM onShutdown
+
+DeleteVariable OnGalaxyMap
+
+END PROGRAM
